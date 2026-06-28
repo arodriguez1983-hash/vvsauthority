@@ -1,0 +1,26 @@
+[
+  {
+    "id": "lab-marquise-131",
+    "name": "1.31 CT Marquise Lab Diamond",
+    "category": "Lab Diamonds",
+    "stone": "Lab Diamond",
+    "carat": "1.31",
+    "shape": "Marquise",
+    "price": "Contact for pricing",
+    "status": "Available",
+    "image": "assets/images/products/lab-marquise-131.jpg",
+    "description": "Premium lab diamond available through VVS Authority. Message us on Whatnot or TikTok for current availability."
+  },
+  {
+    "id": "aquamarine-pear-230",
+    "name": "2.30 CT Pear Aquamarine",
+    "category": "Gemstones",
+    "stone": "Aquamarine",
+    "carat": "2.30",
+    "shape": "Pear",
+    "price": "Contact for pricing",
+    "status": "Available",
+    "image": "assets/images/products/aquamarine-pear-230.jpg",
+    "description": "Beautiful pear aquamarine selected by VVS Authority. Message us on Whatnot or TikTok for details."
+  }
+]

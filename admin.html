@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VVS Authority Admin</title>
+  <style>
+    body{margin:0;font-family:Arial,sans-serif;background:#080808;color:#fff}header{padding:22px;background:#000;border-bottom:1px solid #333}h1{margin:0;color:#d4af37}.wrap{max-width:1100px;margin:auto;padding:24px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}label{display:block;font-size:13px;color:#d4af37;margin-bottom:6px}input,textarea,select{width:100%;padding:12px;background:#111;color:#fff;border:1px solid #333;border-radius:8px}textarea{min-height:90px}.card{background:#111;border:1px solid #333;border-radius:14px;padding:18px;margin-bottom:18px}.btn{background:#d4af37;color:#000;border:0;padding:12px 18px;border-radius:8px;font-weight:bold;cursor:pointer;margin:6px 6px 6px 0}.btn.dark{background:#222;color:#fff;border:1px solid #444}.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}.product{background:#0f0f0f;border:1px solid #333;border-radius:14px;padding:14px}.product img{width:100%;height:160px;object-fit:cover;background:#222;border-radius:10px}.small{color:#aaa;font-size:13px;line-height:1.5}.danger{background:#7a1b1b;color:#fff}@media(max-width:750px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<header><h1>VVS Authority Admin</h1><p class="small">This admin works locally in your browser. Export products.json and upload it to GitHub.</p></header>
+<div class="wrap">
+  <div class="card">
+    <h2>Add / Edit Product</h2>
+    <div class="grid">
+      <div><label>Product ID</label><input id="id" placeholder="example: pink-sapphire-250"></div>
+      <div><label>Name</label><input id="name" placeholder="2.50 CT Pink Sapphire"></div>
+      <div><label>Category</label><select id="category"><option>Lab Diamonds</option><option>Moissanite</option><option>Gemstones</option><option>Jewelry</option></select></div>
+      <div><label>Stone</label><input id="stone" placeholder="Pink Sapphire"></div>
+      <div><label>Carat</label><input id="carat" placeholder="2.50"></div>
+      <div><label>Shape</label><input id="shape" placeholder="Oval"></div>
+      <div><label>Price</label><input id="price" placeholder="Contact for pricing"></div>
+      <div><label>Status</label><select id="status"><option>Available</option><option>Sold</option><option>Coming Soon</option></select></div>
+      <div style="grid-column:1/-1"><label>Image Path</label><input id="image" placeholder="assets/images/products/pink-sapphire-250.jpg"></div>
+      <div style="grid-column:1/-1"><label>Description</label><textarea id="description" placeholder="Product description"></textarea></div>
+    </div>
+    <button class="btn" onclick="saveProduct()">Save Product</button>
+    <button class="btn dark" onclick="clearForm()">Clear</button>
+    <button class="btn dark" onclick="loadSample()">Load Sample Data</button>
+    <button class="btn" onclick="downloadJSON()">Download products.json</button>
+  </div>
+  <div class="card">
+    <h2>Current Products</h2>
+    <div id="products" class="products"></div>
+  </div>
+</div>
+<script>
+let products = JSON.parse(localStorage.getItem('vvsProducts') || '[]');
+function $(id){return document.getElementById(id)}
+function save(){localStorage.setItem('vvsProducts', JSON.stringify(products,null,2)); render()}
+function saveProduct(){
+  const p={id:$('id').value.trim(),name:$('name').value.trim(),category:$('category').value,stone:$('stone').value.trim(),carat:$('carat').value.trim(),shape:$('shape').value.trim(),price:$('price').value.trim()||'Contact for pricing',status:$('status').value,image:$('image').value.trim(),description:$('description').value.trim()};
+  if(!p.id||!p.name){alert('Product ID and Name are required.');return}
+  const i=products.findIndex(x=>x.id===p.id); if(i>=0) products[i]=p; else products.push(p); save(); clearForm();
+}
+function editProduct(id){const p=products.find(x=>x.id===id); if(!p)return; Object.keys(p).forEach(k=>$(k)&&($(k).value=p[k])); scrollTo(0,0)}
+function deleteProduct(id){if(confirm('Delete this product?')){products=products.filter(p=>p.id!==id); save()}}
+function clearForm(){['id','name','stone','carat','shape','price','image','description'].forEach(x=>$(x).value='');$('category').value='Lab Diamonds';$('status').value='Available'}
+function render(){
+ $('products').innerHTML=products.map(p=>`<div class="product"><img src="${p.image||''}" onerror="this.style.display='none'"><h3>${p.name}</h3><p class="small">${p.category} • ${p.stone} • ${p.carat} CT • ${p.shape}<br>${p.price} • ${p.status}</p><p class="small">${p.description||''}</p><button class="btn dark" onclick="editProduct('${p.id}')">Edit</button><button class="btn danger" onclick="deleteProduct('${p.id}')">Delete</button></div>`).join('') || '<p class="small">No products yet.</p>';
+}
+function downloadJSON(){const blob=new Blob([JSON.stringify(products,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='products.json';a.click();}
+function loadSample(){products=[{id:'lab-marquise-131',name:'1.31 CT Marquise Lab Diamond',category:'Lab Diamonds',stone:'Lab Diamond',carat:'1.31',shape:'Marquise',price:'Contact for pricing',status:'Available',image:'assets/images/products/lab-marquise-131.jpg',description:'Premium lab diamond available through VVS Authority.'},{id:'pink-sapphire-250',name:'2.50 CT Pink Sapphire',category:'Gemstones',stone:'Pink Sapphire',carat:'2.50',shape:'Cushion',price:'Contact for pricing',status:'Available',image:'assets/images/products/pink-sapphire-250.jpg',description:'Colorful loose gemstone available through VVS Authority.'}];save()}
+render();
+</script>
+</body>
+</html>
