@@ -1,5 +1,6 @@
 /* VVS Authority product catalog.
- * Only the marquise diamond has a live PayPal checkout and an official price.
+ * The marquise diamond has a live PayPal checkout and an official price.
+ * Items with contactToBuy: true have an official listed price but no PayPal link yet — buyers should contact us to purchase.
  * Other prices marked EXAMPLE PRICE are display-only placeholders, not checkout amounts.
  * Items with messageForPrice: true have no listed price — buyers should contact us.
  */
@@ -13,6 +14,18 @@ const PRODUCTS = [
     description: "1.31 Carat Lab Diamond, Marquise Cut, IGI Certified",
     paypalLink: "https://www.paypal.com/ncp/payment/DZG7BAA653M3W",
     placeholder: false,
+    featured: true
+  },
+  {
+    id: "moissanite-round-1ct-gra",
+    name: "1 CT Round Moissanite, GRA Certified",
+    category: "moissanite",
+    price: 25, // Official listed price — contact to buy (no PayPal link yet)
+    image: "https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?auto=format&fit=crop&w=900&q=85",
+    description: "1 carat round brilliant moissanite, GRA certified.",
+    paypalLink: "#",
+    placeholder: true,
+    contactToBuy: true,
     featured: true
   },
   {

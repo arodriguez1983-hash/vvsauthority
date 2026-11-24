@@ -11,6 +11,18 @@
     "featured": true
   },
   {
+    "id": "moissanite-round-1ct-gra",
+    "name": "1 CT Round Moissanite, GRA Certified",
+    "category": "moissanite",
+    "price": 25,
+    "image": "https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?auto=format&fit=crop&w=900&q=85",
+    "description": "1 carat round brilliant moissanite, GRA certified.",
+    "paypalLink": "#",
+    "placeholder": true,
+    "contactToBuy": true,
+    "featured": true
+  },
+  {
     "id": "oval-150",
     "name": "1.50 CT Oval Lab Diamond",
     "category": "diamonds",

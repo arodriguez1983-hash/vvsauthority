@@ -61,6 +61,20 @@
     );
   }
 
+  function isContactToBuy(product) {
+    return !!(product && product.contactToBuy && !isBuyable(product));
+  }
+
+  function isExamplePrice(product) {
+    return !!(
+      product &&
+      product.placeholder &&
+      !product.contactToBuy &&
+      !product.messageForPrice &&
+      typeof product.price === "number"
+    );
+  }
+
   function formatPrice(product) {
     if (!product || product.messageForPrice || product.price == null || product.price === "") {
       return "Message for price";
@@ -180,18 +194,21 @@
         '">Buy Now</a>'
       );
     }
+    var label = isContactToBuy(product) ? "Contact to buy" : "Coming soon / contact us";
     return (
       '<a class="btn small" href="' +
       CONTACT_HREF +
       '" data-buy-now="' +
       escapeHtml(product.id) +
-      '">Coming soon / contact us</a>'
+      '">' + label + "</a>"
     );
   }
 
   function productCardHTML(product) {
     var priceNote = "";
-    if (product.placeholder && !product.messageForPrice) {
+    if (isContactToBuy(product)) {
+      priceNote = '<span class="price-note">Contact to buy</span>';
+    } else if (isExamplePrice(product)) {
       priceNote = '<span class="price-note">Example price</span>';
     }
 
@@ -252,8 +269,10 @@
     var lines = [];
     var payableSubtotal = 0;
     var exampleSubtotal = 0;
+    var contactSubtotal = 0;
     var payableItems = [];
     var exampleCount = 0;
+    var contactCount = 0;
     var unpricedCount = 0;
 
     items.forEach(function (item) {
@@ -262,16 +281,17 @@
       var qty = Number(item.qty);
       if (isBuyable(product) && qty > 1) qty = 1;
       var buyable = isBuyable(product);
-      var isExample = !!(
-        product.placeholder &&
-        !product.messageForPrice &&
-        typeof product.price === "number"
-      );
+      var contactBuy = isContactToBuy(product);
+      var isExample = isExamplePrice(product);
       var lineTotal = null;
       if (buyable) {
         lineTotal = product.price * qty;
         payableSubtotal += lineTotal;
         payableItems.push(product);
+      } else if (contactBuy) {
+        lineTotal = product.price * qty;
+        contactSubtotal += lineTotal;
+        contactCount += 1;
       } else if (isExample) {
         lineTotal = product.price * qty;
         exampleSubtotal += lineTotal;
@@ -282,7 +302,7 @@
 
       var buyAction = buyable
         ? '<a class="btn primary small" href="' + escapeHtml(product.paypalLink) + '" target="_blank" rel="noopener noreferrer">Buy Now</a>'
-        : '<a class="btn small" href="' + CONTACT_HREF + '">Coming soon / contact us</a>';
+        : '<a class="btn small" href="' + CONTACT_HREF + '">' + (contactBuy ? "Contact to buy" : "Coming soon / contact us") + "</a>";
 
       var qtyControls;
       if (buyable) {
@@ -304,14 +324,14 @@
           '<img src="' + escapeHtml(product.image) + '" alt="' + escapeHtml(product.name) + '">' +
           "<div>" +
             "<h3>" + escapeHtml(product.name) + "</h3>" +
-            '<div class="meta">' + formatPrice(product) + (isExample ? " · Example price (not payable)" : "") + (buyable ? " · Live PayPal checkout" : "") + "</div>" +
+            '<div class="meta">' + formatPrice(product) + (isExample ? " · Example price (not payable)" : "") + (contactBuy ? " · Contact to buy" : "") + (buyable ? " · Live PayPal checkout" : "") + "</div>" +
             qtyControls +
             '<div class="cart-item-actions">' +
               buyAction +
               '<button type="button" class="btn ghost small" data-remove="' + escapeHtml(product.id) + '">Remove</button>' +
             "</div>" +
           "</div>" +
-          '<div class="line-total">' + (lineTotal == null ? "—" : formatMoney(lineTotal)) + (isExample ? '<span class="price-note">Example</span>' : "") + "</div>" +
+          '<div class="line-total">' + (lineTotal == null ? "—" : formatMoney(lineTotal)) + (isExample ? '<span class="price-note">Example</span>' : "") + (contactBuy ? '<span class="price-note">Contact to buy</span>' : "") + "</div>" +
         "</article>"
       );
     });
@@ -336,7 +356,18 @@
 
     var checkoutNote =
       "<p>There is no combined cart checkout. Each live PayPal button charges only that one item, at the official price. " +
-      "Example prices are display-only and cannot be paid on this site. Use Coming soon / contact us, Whatnot, or TikTok for those pieces.</p>";
+      "Items priced as contact-to-buy have a real listed price but cannot be paid here yet — message us to purchase. " +
+      "Example prices are display-only and cannot be paid on this site.</p>";
+
+    if (contactCount) {
+      checkoutNote +=
+        "<p>" +
+        contactCount +
+        " item" + (contactCount === 1 ? " has" : "s have") +
+        " a listed price and " + (contactCount === 1 ? "needs" : "need") +
+        " you to contact us to buy. " + (contactCount === 1 ? "It is" : "They are") +
+        " not included in Payable now.</p>";
+    }
 
     if (exampleCount) {
       checkoutNote +=
@@ -375,6 +406,9 @@
       "<h2>Order summary</h2>" +
       '<div class="summary-row"><span>Items</span><span>' + cartCount() + "</span></div>" +
       '<div class="summary-row total"><span>Payable now</span><span>' + (payableItems.length ? formatMoney(payableSubtotal) : "—") + "</span></div>" +
+      (contactCount
+        ? '<div class="summary-row"><span>Contact to buy</span><span>' + formatMoney(contactSubtotal) + "</span></div>"
+        : "") +
       (exampleCount
         ? '<div class="summary-row"><span>Example prices (not charged)</span><span>' + formatMoney(exampleSubtotal) + "</span></div>"
         : "") +
@@ -507,6 +541,8 @@
     cartCount: cartCount,
     findProduct: findProduct,
     isBuyable: isBuyable,
+    isContactToBuy: isContactToBuy,
+    isExamplePrice: isExamplePrice,
     formatPrice: formatPrice,
     renderProductContainers: renderProductContainers,
     renderCartPage: renderCartPage
