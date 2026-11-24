@@ -11,18 +11,6 @@
     "featured": true
   },
   {
-    "id": "emerald-104",
-    "name": "1.04 CT Emerald Cut Lab Diamond",
-    "category": "diamonds",
-    "price": null,
-    "image": "https://images.unsplash.com/photo-1588444650733-d0767b753fc8?auto=format&fit=crop&w=900&q=85",
-    "description": "Classic step-cut lab diamond with a refined, luxury look. IGI certification available — message for current availability and price.",
-    "paypalLink": "#",
-    "placeholder": true,
-    "messageForPrice": true,
-    "featured": true
-  },
-  {
     "id": "oval-150",
     "name": "1.50 CT Oval Lab Diamond",
     "category": "diamonds",
@@ -65,30 +53,6 @@
     "paypalLink": "#",
     "placeholder": true,
     "featured": false
-  },
-  {
-    "id": "pink-sapphire-250",
-    "name": "2.50 CT Pink Sapphire",
-    "category": "gemstones",
-    "price": null,
-    "image": "https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?auto=format&fit=crop&w=900&q=85",
-    "description": "Bright pink sapphire with premium presentation and shine. Message for current availability and price.",
-    "paypalLink": "#",
-    "placeholder": true,
-    "messageForPrice": true,
-    "featured": true
-  },
-  {
-    "id": "aquamarine-pear-230",
-    "name": "2.30 CT Pear Aquamarine",
-    "category": "gemstones",
-    "price": null,
-    "image": "https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=900&q=85",
-    "description": "Clean icy-blue pear aquamarine for collectors or custom jewelry builds. Message for current availability and price.",
-    "paypalLink": "#",
-    "placeholder": true,
-    "messageForPrice": true,
-    "featured": true
   },
   {
     "id": "blue-sapphire-180",

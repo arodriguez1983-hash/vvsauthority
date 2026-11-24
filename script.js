@@ -146,14 +146,20 @@
   function normalizeCart() {
     var items = getCart();
     var changed = false;
+    var next = [];
     items.forEach(function (item) {
       var product = findProduct(item.id);
+      if (!product) {
+        changed = true;
+        return;
+      }
       if (isBuyable(product) && Number(item.qty) > 1) {
         item.qty = 1;
         changed = true;
       }
+      next.push(item);
     });
-    if (changed) setCart(items);
+    if (changed) setCart(next);
   }
 
   function buyNow(product) {
@@ -229,7 +235,7 @@
         list = PRODUCTS.slice();
       }
       if (!list.length) {
-        container.innerHTML = '<p class="empty-cart">No pieces are listed in this collection yet. Message us on Whatnot for current inventory.</p>';
+        container.innerHTML = '<div class="notice center empty-cart"><h2>More coming soon</h2><p>This collection is being updated. Message us on Whatnot or the contact page for current availability.</p></div>';
         return;
       }
       container.innerHTML = list.map(productCardHTML).join("");
