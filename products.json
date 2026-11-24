@@ -15,11 +15,26 @@
     "name": "1 CT Round Moissanite - GRA Certified",
     "category": "moissanite",
     "price": 25,
-    "image": "https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?auto=format&fit=crop&w=900&q=85",
+    "image": "assets/images/moissanite-1ct-round-1.jpg",
     "description": "1 carat round brilliant moissanite, GRA certified.",
     "paypalLink": "https://www.paypal.com/ncp/payment/THNC5RMGHLMVN",
     "placeholder": false,
-    "featured": true
+    "featured": true,
+    "imageAlt": "1 carat round GRA-certified moissanite held on a fingertip",
+    "images": [
+      {
+        "src": "assets/images/moissanite-1ct-round-1.jpg",
+        "alt": "1 carat round GRA-certified moissanite held on a fingertip"
+      },
+      {
+        "src": "assets/images/moissanite-1ct-round-2.jpg",
+        "alt": "GRA moissanite report and certificate card with round stones in a tray"
+      },
+      {
+        "src": "assets/images/moissanite-1ct-round-3.jpg",
+        "alt": "Six round GRA-certified moissanites displayed on a hand"
+      }
+    ]
   },
   {
     "id": "oval-150",
@@ -49,7 +64,7 @@
     "category": "moissanite",
     "price": 149,
     "image": "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=900&q=85",
-    "description": "Brilliant moissanite studs with a halo setting — everyday sparkle for daily wear or gifting.",
+    "description": "Brilliant moissanite studs with a halo setting \u2014 everyday sparkle for daily wear or gifting.",
     "paypalLink": "#",
     "placeholder": true,
     "featured": false
@@ -104,7 +119,7 @@
     "category": "jewelry",
     "price": 320,
     "image": "https://images.unsplash.com/photo-1599643477877-530eb83abc8e?auto=format&fit=crop&w=900&q=85",
-    "description": "Classic figaro-link chain in 14K gold — a versatile everyday or layering piece.",
+    "description": "Classic figaro-link chain in 14K gold \u2014 a versatile everyday or layering piece.",
     "paypalLink": "#",
     "placeholder": true,
     "featured": false

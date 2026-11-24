@@ -205,6 +205,32 @@
     );
   }
 
+  function productAlt(product, imageObj) {
+    if (imageObj && imageObj.alt) return imageObj.alt;
+    if (product && product.imageAlt) return product.imageAlt;
+    return product && product.name ? product.name : "";
+  }
+
+  function webpSrc(src) {
+    if (!src || src.indexOf("assets/images/") !== 0) return "";
+    if (!/\.jpe?g$/i.test(src)) return "";
+    return src.replace(/\.jpe?g$/i, ".webp");
+  }
+
+  function productPictureHTML(src, alt, imgAttrs) {
+    var img = "<img src=\"" + escapeHtml(src) + "\" alt=\"" + escapeHtml(alt) + "\"" + (imgAttrs ? " " + imgAttrs : "") + ">";
+    var webp = webpSrc(src);
+    if (!webp) return img;
+    return "<picture><source type=\"image/webp\" srcset=\"" + escapeHtml(webp) + "\">" + img + "</picture>";
+  }
+
+  function galleryImages(product) {
+    if (product && Array.isArray(product.images) && product.images.length) {
+      return product.images.filter(function (item) { return item && item.src; });
+    }
+    return product && product.image ? [{ src: product.image, alt: productAlt(product) }] : [];
+  }
+
   function productCardHTML(product) {
     var priceNote = "";
     if (isContactToBuy(product)) {
@@ -213,9 +239,37 @@
       priceNote = '<span class="price-note">Example price</span>';
     }
 
+    var views = galleryImages(product);
+    var main = views[0] || { src: product.image, alt: productAlt(product) };
+    var media =
+      '<div class="product-media">' +
+        productPictureHTML(main.src, productAlt(product, main), 'data-product-main-image') +
+      "</div>";
+    if (views.length > 1) {
+      media =
+        '<div class="product-media">' +
+          productPictureHTML(main.src, productAlt(product, main), 'data-product-main-image') +
+          '<div class="product-thumbs" role="group" aria-label="More photos">' +
+          views.map(function (view, index) {
+            return (
+              '<button type="button" class="product-thumb' + (index === 0 ? " is-active" : "") + '" data-gallery-src="' +
+              escapeHtml(view.src) +
+              '" data-gallery-alt="' +
+              escapeHtml(productAlt(product, view)) +
+              '"' +
+              (webpSrc(view.src) ? ' data-gallery-webp="' + escapeHtml(webpSrc(view.src)) + '"' : "") +
+              ' aria-label="View photo ' + (index + 1) + '">' +
+              '<img src="' + escapeHtml(view.src) + '" alt="">' +
+              "</button>"
+            );
+          }).join("") +
+          "</div>" +
+        "</div>";
+    }
+
     return (
       '<article class="product" data-product-id="' + escapeHtml(product.id) + '">' +
-        '<img src="' + escapeHtml(product.image) + '" alt="' + escapeHtml(product.name) + '">' +
+        media +
         "<div>" +
           '<span class="tag">' + escapeHtml(categoryLabel(product.category)) + "</span>" +
           "<h3>" + escapeHtml(product.name) + "</h3>" +
@@ -322,7 +376,7 @@
 
       lines.push(
         '<article class="cart-item" data-cart-item="' + escapeHtml(product.id) + '">' +
-          '<img src="' + escapeHtml(product.image) + '" alt="' + escapeHtml(product.name) + '">' +
+          productPictureHTML(product.image, productAlt(product)) +
           "<div>" +
             "<h3>" + escapeHtml(product.name) + "</h3>" +
             '<div class="meta">' + formatPrice(product) + (isExample ? " · Example price (not payable)" : "") + (contactBuy ? " · Message us to buy" : "") + (buyable ? " · Live PayPal checkout" : "") + "</div>" +
@@ -438,6 +492,27 @@
   }
 
   function onClick(event) {
+    var thumb = event.target.closest("[data-gallery-src]");
+    if (thumb) {
+      event.preventDefault();
+      var media = thumb.closest(".product-media");
+      if (media) {
+        var img = media.querySelector("[data-product-main-image]");
+        var source = media.querySelector("source[type='image/webp']");
+        if (img) {
+          img.src = thumb.getAttribute("data-gallery-src");
+          img.alt = thumb.getAttribute("data-gallery-alt") || img.alt;
+        }
+        if (source) {
+          source.srcset = thumb.getAttribute("data-gallery-webp") || webpSrc(thumb.getAttribute("data-gallery-src")) || source.srcset;
+        }
+        $all("[data-gallery-src]", media).forEach(function (btn) {
+          btn.classList.toggle("is-active", btn === thumb);
+        });
+      }
+      return;
+    }
+
     var addBtn = event.target.closest("[data-add-to-cart]");
     if (addBtn) {
       event.preventDefault();

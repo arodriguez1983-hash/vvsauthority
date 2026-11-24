@@ -21,7 +21,13 @@ const PRODUCTS = [
     name: "1 CT Round Moissanite - GRA Certified",
     category: "moissanite",
     price: 25, // Official PayPal checkout amount (USD 25.00)
-    image: "https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?auto=format&fit=crop&w=900&q=85",
+    image: "assets/images/moissanite-1ct-round-1.jpg",
+    imageAlt: "1 carat round GRA-certified moissanite held on a fingertip",
+    images: [
+      { src: "assets/images/moissanite-1ct-round-1.jpg", alt: "1 carat round GRA-certified moissanite held on a fingertip" },
+      { src: "assets/images/moissanite-1ct-round-2.jpg", alt: "GRA moissanite report and certificate card with round stones in a tray" },
+      { src: "assets/images/moissanite-1ct-round-3.jpg", alt: "Six round GRA-certified moissanites displayed on a hand" }
+    ],
     description: "1 carat round brilliant moissanite, GRA certified.",
     paypalLink: "https://www.paypal.com/ncp/payment/THNC5RMGHLMVN",
     placeholder: false,
