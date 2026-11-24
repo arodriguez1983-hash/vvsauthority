@@ -3,6 +3,7 @@
 
   var CART_KEY = "vvs-authority-cart";
   var WHATNOT_URL = "https://www.whatnot.com/user/vvs_authority";
+  var TIKTOK_URL = "https://www.tiktok.com/@vvs_authority";
   var CONTACT_HREF = "contact.html";
 
   function $(sel, root) {
@@ -194,7 +195,7 @@
         '">Buy Now</a>'
       );
     }
-    var label = isContactToBuy(product) ? "Contact to buy" : "Coming soon / contact us";
+    var label = isContactToBuy(product) ? "Message us to buy" : "Coming soon / message us";
     return (
       '<a class="btn small" href="' +
       CONTACT_HREF +
@@ -207,7 +208,7 @@
   function productCardHTML(product) {
     var priceNote = "";
     if (isContactToBuy(product)) {
-      priceNote = '<span class="price-note">Contact to buy</span>';
+      priceNote = '<span class="price-note">Message us to buy</span>';
     } else if (isExamplePrice(product)) {
       priceNote = '<span class="price-note">Example price</span>';
     }
@@ -302,7 +303,7 @@
 
       var buyAction = buyable
         ? '<a class="btn primary small" href="' + escapeHtml(product.paypalLink) + '" target="_blank" rel="noopener noreferrer">Buy Now</a>'
-        : '<a class="btn small" href="' + CONTACT_HREF + '">' + (contactBuy ? "Contact to buy" : "Coming soon / contact us") + "</a>";
+        : '<a class="btn small" href="' + CONTACT_HREF + '">' + (contactBuy ? "Message us to buy" : "Coming soon / message us") + "</a>";
 
       var qtyControls;
       if (buyable) {
@@ -324,14 +325,14 @@
           '<img src="' + escapeHtml(product.image) + '" alt="' + escapeHtml(product.name) + '">' +
           "<div>" +
             "<h3>" + escapeHtml(product.name) + "</h3>" +
-            '<div class="meta">' + formatPrice(product) + (isExample ? " · Example price (not payable)" : "") + (contactBuy ? " · Contact to buy" : "") + (buyable ? " · Live PayPal checkout" : "") + "</div>" +
+            '<div class="meta">' + formatPrice(product) + (isExample ? " · Example price (not payable)" : "") + (contactBuy ? " · Message us to buy" : "") + (buyable ? " · Live PayPal checkout" : "") + "</div>" +
             qtyControls +
             '<div class="cart-item-actions">' +
               buyAction +
               '<button type="button" class="btn ghost small" data-remove="' + escapeHtml(product.id) + '">Remove</button>' +
             "</div>" +
           "</div>" +
-          '<div class="line-total">' + (lineTotal == null ? "—" : formatMoney(lineTotal)) + (isExample ? '<span class="price-note">Example</span>' : "") + (contactBuy ? '<span class="price-note">Contact to buy</span>' : "") + "</div>" +
+          '<div class="line-total">' + (lineTotal == null ? "—" : formatMoney(lineTotal)) + (isExample ? '<span class="price-note">Example</span>' : "") + (contactBuy ? '<span class="price-note">Message us to buy</span>' : "") + "</div>" +
         "</article>"
       );
     });
@@ -356,7 +357,7 @@
 
     var checkoutNote =
       "<p>There is no combined cart checkout. Each live PayPal button charges only that one item, at the official price. " +
-      "Items priced as contact-to-buy have a real listed price but cannot be paid here yet — message us to purchase. " +
+      "Items with a listed price but no PayPal link yet cannot be paid here — message us on Whatnot or TikTok to purchase. " +
       "Example prices are display-only and cannot be paid on this site.</p>";
 
     if (contactCount) {
@@ -365,7 +366,7 @@
         contactCount +
         " item" + (contactCount === 1 ? " has" : "s have") +
         " a listed price and " + (contactCount === 1 ? "needs" : "need") +
-        " you to contact us to buy. " + (contactCount === 1 ? "It is" : "They are") +
+        " you to message us to buy. " + (contactCount === 1 ? "It is" : "They are") +
         " not included in Payable now.</p>";
     }
 
@@ -407,7 +408,7 @@
       '<div class="summary-row"><span>Items</span><span>' + cartCount() + "</span></div>" +
       '<div class="summary-row total"><span>Payable now</span><span>' + (payableItems.length ? formatMoney(payableSubtotal) : "—") + "</span></div>" +
       (contactCount
-        ? '<div class="summary-row"><span>Contact to buy</span><span>' + formatMoney(contactSubtotal) + "</span></div>"
+        ? '<div class="summary-row"><span>Message us to buy</span><span>' + formatMoney(contactSubtotal) + "</span></div>"
         : "") +
       (exampleCount
         ? '<div class="summary-row"><span>Example prices (not charged)</span><span>' + formatMoney(exampleSubtotal) + "</span></div>"
@@ -415,8 +416,8 @@
       '<div class="notice" style="margin-top:18px">' + checkoutNote + "</div>" +
       '<div class="cta-row">' +
         payableButtons +
-        '<a class="btn" href="' + CONTACT_HREF + '">Contact us</a>' +
         '<a class="btn" href="' + WHATNOT_URL + '" target="_blank" rel="noopener noreferrer">Message on Whatnot</a>' +
+        '<a class="btn" href="' + TIKTOK_URL + '" target="_blank" rel="noopener noreferrer">Message on TikTok</a>' +
       "</div>";
   }
 
@@ -493,27 +494,6 @@
     });
   }
 
-  function initContactForm() {
-    var form = $("[data-contact-form]");
-    if (!form) return;
-    form.addEventListener("submit", function (event) {
-      event.preventDefault();
-      var name = (form.elements.namedItem("name") || {}).value || "";
-      var email = (form.elements.namedItem("email") || {}).value || "";
-      var message = (form.elements.namedItem("message") || {}).value || "";
-      var subject = "VVS Authority inquiry from " + (name || "website visitor");
-      var body =
-        "Name: " + name + "\n" +
-        "Email: " + email + "\n\n" +
-        message;
-      // Placeholder mailbox — replace when a public inbox is confirmed.
-      var mailto = "mailto:contact@vvsauthority.com?subject=" +
-        encodeURIComponent(subject) +
-        "&body=" +
-        encodeURIComponent(body);
-      window.location.href = mailto;
-    });
-  }
 
   document.addEventListener("click", onClick);
   document.addEventListener("change", onChange);
@@ -526,7 +506,6 @@
     updateCartCount();
     renderProductContainers();
     renderCartPage();
-    initContactForm();
   });
 
   // Expose a small API for tests.

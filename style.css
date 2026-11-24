@@ -532,13 +532,19 @@ main { flex: 1; }
 }
 .empty-cart { text-align: center; padding: 48px 20px; }
 
-/* Contact form */
+/* Contact */
 .contact-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 28px;
   align-items: start;
 }
+.message-us h2 {
+  font-family: Cinzel, serif;
+  color: var(--gold);
+  margin: 0 0 8px;
+}
+.message-us .cta-row { margin-top: 22px; }
 .contact-form {
   display: grid;
   gap: 14px;

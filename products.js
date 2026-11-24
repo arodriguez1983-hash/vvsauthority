@@ -1,8 +1,8 @@
 /* VVS Authority product catalog.
  * The marquise diamond and the 1 CT GRA round moissanite have live PayPal checkouts and official prices.
- * Items with contactToBuy: true have an official listed price but no PayPal link yet — buyers should contact us to purchase.
+ * Items with contactToBuy: true have an official listed price but no PayPal link yet — buyers should message us on Whatnot or TikTok to purchase.
  * Other prices marked EXAMPLE PRICE are display-only placeholders, not checkout amounts.
- * Items with messageForPrice: true have no listed price — buyers should contact us.
+ * Items with messageForPrice: true have no listed price — buyers should message us on Whatnot or TikTok.
  */
 const PRODUCTS = [
   {
