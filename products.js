@@ -1,5 +1,5 @@
 /* VVS Authority product catalog.
- * The marquise diamond has a live PayPal checkout and an official price.
+ * The marquise diamond and the 1 CT GRA round moissanite have live PayPal checkouts and official prices.
  * Items with contactToBuy: true have an official listed price but no PayPal link yet — buyers should contact us to purchase.
  * Other prices marked EXAMPLE PRICE are display-only placeholders, not checkout amounts.
  * Items with messageForPrice: true have no listed price — buyers should contact us.
@@ -20,12 +20,11 @@ const PRODUCTS = [
     id: "moissanite-round-1ct-gra",
     name: "1 CT Round Moissanite, GRA Certified",
     category: "moissanite",
-    price: 25, // Official listed price — contact to buy (no PayPal link yet)
+    price: 25, // Official PayPal checkout amount (USD 25.00)
     image: "https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?auto=format&fit=crop&w=900&q=85",
     description: "1 carat round brilliant moissanite, GRA certified.",
-    paypalLink: "#",
-    placeholder: true,
-    contactToBuy: true,
+    paypalLink: "https://www.paypal.com/ncp/payment/THNC5RMGHLMVN",
+    placeholder: false,
     featured: true
   },
   {
