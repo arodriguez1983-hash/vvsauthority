@@ -93,10 +93,17 @@
     if (qty < 1) return;
     var product = findProduct(id);
     if (!product) return;
+    // Live PayPal links on this site are fixed-price for a single piece.
+    // Quantity is not sent to PayPal, so buyable items stay at qty 1.
+    if (isBuyable(product)) qty = 1;
     var items = getCart();
     var found = false;
     for (var i = 0; i < items.length; i++) {
       if (items[i].id === id) {
+        if (isBuyable(product)) {
+          showToast(product.name + " is already in your cart (limited to 1)");
+          return;
+        }
         items[i].qty = Number(items[i].qty) + qty;
         found = true;
         break;
@@ -110,6 +117,10 @@
 
   function setQty(id, qty) {
     qty = Number(qty);
+    var product = findProduct(id);
+    // Fixed-price PayPal links charge one unit, so do not allow qty > 1
+    // on items that actually check out.
+    if (isBuyable(product) && qty >= 1) qty = 1;
     var items = getCart();
     if (qty < 1) {
       items = items.filter(function (item) { return item.id !== id; });
@@ -130,6 +141,19 @@
   function clearCart() {
     setCart([]);
     if ($("[data-cart-page]")) renderCartPage();
+  }
+
+  function normalizeCart() {
+    var items = getCart();
+    var changed = false;
+    items.forEach(function (item) {
+      var product = findProduct(item.id);
+      if (isBuyable(product) && Number(item.qty) > 1) {
+        item.qty = 1;
+        changed = true;
+      }
+    });
+    if (changed) setCart(items);
   }
 
   function buyNow(product) {
@@ -220,44 +244,68 @@
     var summaryEl = $("[data-cart-summary]", root);
     var items = getCart();
     var lines = [];
-    var subtotal = 0;
-    var pricedCount = 0;
+    var payableSubtotal = 0;
+    var exampleSubtotal = 0;
+    var payableItems = [];
+    var exampleCount = 0;
     var unpricedCount = 0;
 
     items.forEach(function (item) {
       var product = findProduct(item.id);
       if (!product) return;
       var qty = Number(item.qty);
-      var hasPrice = !product.messageForPrice && typeof product.price === "number";
-      var lineTotal = hasPrice ? product.price * qty : null;
-      if (hasPrice) {
-        subtotal += lineTotal;
-        pricedCount += 1;
+      if (isBuyable(product) && qty > 1) qty = 1;
+      var buyable = isBuyable(product);
+      var isExample = !!(
+        product.placeholder &&
+        !product.messageForPrice &&
+        typeof product.price === "number"
+      );
+      var lineTotal = null;
+      if (buyable) {
+        lineTotal = product.price * qty;
+        payableSubtotal += lineTotal;
+        payableItems.push(product);
+      } else if (isExample) {
+        lineTotal = product.price * qty;
+        exampleSubtotal += lineTotal;
+        exampleCount += 1;
       } else {
         unpricedCount += 1;
       }
 
-      var buyAction = isBuyable(product)
+      var buyAction = buyable
         ? '<a class="btn primary small" href="' + escapeHtml(product.paypalLink) + '" target="_blank" rel="noopener noreferrer">Buy Now</a>'
         : '<a class="btn small" href="' + CONTACT_HREF + '">Coming soon / contact us</a>';
+
+      var qtyControls;
+      if (buyable) {
+        qtyControls =
+          '<div class="qty">' +
+            '<span>Qty: 1 <span class="price-note">Unique piece — PayPal charges one item</span></span>' +
+          "</div>";
+      } else {
+        qtyControls =
+          '<div class="qty">' +
+            '<button type="button" data-qty-delta="-1" data-id="' + escapeHtml(product.id) + '" aria-label="Decrease quantity">−</button>' +
+            '<input type="number" min="1" value="' + qty + '" data-qty-input="' + escapeHtml(product.id) + '" aria-label="Quantity">' +
+            '<button type="button" data-qty-delta="1" data-id="' + escapeHtml(product.id) + '" aria-label="Increase quantity">+</button>' +
+          "</div>";
+      }
 
       lines.push(
         '<article class="cart-item" data-cart-item="' + escapeHtml(product.id) + '">' +
           '<img src="' + escapeHtml(product.image) + '" alt="' + escapeHtml(product.name) + '">' +
           "<div>" +
             "<h3>" + escapeHtml(product.name) + "</h3>" +
-            '<div class="meta">' + formatPrice(product) + (product.placeholder && !product.messageForPrice ? " · Example price" : "") + "</div>" +
-            '<div class="qty">' +
-              '<button type="button" data-qty-delta="-1" data-id="' + escapeHtml(product.id) + '" aria-label="Decrease quantity">−</button>' +
-              '<input type="number" min="1" value="' + qty + '" data-qty-input="' + escapeHtml(product.id) + '" aria-label="Quantity">' +
-              '<button type="button" data-qty-delta="1" data-id="' + escapeHtml(product.id) + '" aria-label="Increase quantity">+</button>' +
-            "</div>" +
+            '<div class="meta">' + formatPrice(product) + (isExample ? " · Example price (not payable)" : "") + (buyable ? " · Live PayPal checkout" : "") + "</div>" +
+            qtyControls +
             '<div class="cart-item-actions">' +
               buyAction +
               '<button type="button" class="btn ghost small" data-remove="' + escapeHtml(product.id) + '">Remove</button>' +
             "</div>" +
           "</div>" +
-          '<div class="line-total">' + (lineTotal == null ? "—" : formatMoney(lineTotal)) + "</div>" +
+          '<div class="line-total">' + (lineTotal == null ? "—" : formatMoney(lineTotal)) + (isExample ? '<span class="price-note">Example</span>' : "") + "</div>" +
         "</article>"
       );
     });
@@ -281,28 +329,52 @@
     summaryEl.hidden = false;
 
     var checkoutNote =
-      "<p>Checkout is handled with individual PayPal links. Use Buy Now on each item that has a live payment link. " +
-      "Items without a PayPal link are not available for checkout yet — contact us on Whatnot, TikTok, or the contact page.</p>";
+      "<p>There is no combined cart checkout. Each live PayPal button charges only that one item, at the official price. " +
+      "Example prices are display-only and cannot be paid on this site. Use Coming soon / contact us, Whatnot, or TikTok for those pieces.</p>";
+
+    if (exampleCount) {
+      checkoutNote +=
+        "<p>" +
+        exampleCount +
+        " item" + (exampleCount === 1 ? " has" : "s have") +
+        " an example price and " + (exampleCount === 1 ? "is" : "are") +
+        " not included in Payable now.</p>";
+    }
 
     if (unpricedCount) {
       checkoutNote +=
-        "<p>The subtotal only includes items with a listed price. " +
+        "<p>" +
         unpricedCount +
-        " item" + (unpricedCount === 1 ? "" : "s") +
-        " " + (unpricedCount === 1 ? "needs" : "need") +
+        " item" + (unpricedCount === 1 ? " needs" : "s need") +
         " a quoted price before purchase.</p>";
     }
 
-    if (!pricedCount && items.length) {
-      checkoutNote += "<p>None of the items in your cart have a listed checkout price yet.</p>";
+    if (!payableItems.length && items.length) {
+      checkoutNote += "<p>None of the items in your cart have a live PayPal checkout link.</p>";
     }
+
+    var payableButtons = payableItems.map(function (product) {
+      return (
+        '<a class="btn primary" href="' +
+        escapeHtml(product.paypalLink) +
+        '" target="_blank" rel="noopener noreferrer">Pay ' +
+        formatMoney(product.price) +
+        " for " +
+        escapeHtml(product.name) +
+        "</a>"
+      );
+    }).join("");
 
     summaryEl.innerHTML =
       "<h2>Order summary</h2>" +
       '<div class="summary-row"><span>Items</span><span>' + cartCount() + "</span></div>" +
-      '<div class="summary-row total"><span>Subtotal</span><span>' + (pricedCount ? formatMoney(subtotal) : "—") + "</span></div>" +
+      '<div class="summary-row total"><span>Payable now</span><span>' + (payableItems.length ? formatMoney(payableSubtotal) : "—") + "</span></div>" +
+      (exampleCount
+        ? '<div class="summary-row"><span>Example prices (not charged)</span><span>' + formatMoney(exampleSubtotal) + "</span></div>"
+        : "") +
       '<div class="notice" style="margin-top:18px">' + checkoutNote + "</div>" +
       '<div class="cta-row">' +
+        payableButtons +
         '<a class="btn" href="' + CONTACT_HREF + '">Contact us</a>' +
         '<a class="btn" href="' + WHATNOT_URL + '" target="_blank" rel="noopener noreferrer">Message on Whatnot</a>' +
       "</div>";
@@ -410,6 +482,7 @@
     if ($("[data-clear-cart]")) {
       clearCart();
     }
+    normalizeCart();
     updateCartCount();
     renderProductContainers();
     renderCartPage();
@@ -424,6 +497,7 @@
     removeFromCart: removeFromCart,
     clearCart: clearCart,
     setQty: setQty,
+    normalizeCart: normalizeCart,
     cartCount: cartCount,
     findProduct: findProduct,
     isBuyable: isBuyable,
